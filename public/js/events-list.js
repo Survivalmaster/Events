@@ -6,6 +6,7 @@
   if (!container) return;
 
   let events = [];
+  const warmedImageUrls = new Set();
   let bannerModal = null;
 
   async function apiRequest(url, options = {}) {
@@ -29,6 +30,7 @@
   async function loadEvents() {
     const data = await apiRequest(API_EVENTS);
     events = Array.isArray(data.events) ? data.events : [];
+    warmExistingImages(events);
   }
 
   async function deleteEvent(id) {
@@ -74,8 +76,43 @@
     return `api/image-cache.php?url=${encodeURIComponent(url)}`;
   }
 
+  function getBannerUrl(ev) {
+    return (ev.bannerUrl || ev.banner_url || "").trim();
+  }
+
+  function warmExistingImages(sourceEvents) {
+    const urls = [...new Set(sourceEvents.map(getBannerUrl).filter(Boolean))]
+      .filter((url) => !warmedImageUrls.has(url));
+
+    if (!urls.length) return;
+
+    urls.forEach((url) => warmedImageUrls.add(url));
+
+    let nextIndex = 0;
+    const workerCount = Math.min(4, urls.length);
+
+    const warmNext = async () => {
+      const url = urls[nextIndex];
+      nextIndex += 1;
+
+      if (!url) return;
+
+      try {
+        await fetch(getCachedImageUrl(url), { cache: "force-cache" });
+      } catch {
+        // The card image itself will still try to load when visible.
+      }
+
+      await warmNext();
+    };
+
+    for (let i = 0; i < workerCount; i += 1) {
+      warmNext();
+    }
+  }
+
   function getBannerValues(ev) {
-    const bannerUrl = (ev.bannerUrl || ev.banner_url || "").trim();
+    const bannerUrl = getBannerUrl(ev);
     let bannerPosX = Number(ev.bannerPosX ?? ev.banner_pos_x ?? 50);
     let bannerPosY = Number(ev.bannerPosY ?? ev.banner_pos_y ?? 50);
     let bannerZoom = Number(ev.bannerZoom ?? ev.banner_zoom ?? 1);

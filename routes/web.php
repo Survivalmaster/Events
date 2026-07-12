@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EnvironmentalEventApiController;
 use App\Http\Controllers\EventApiController;
+use App\Http\Controllers\ImageCacheController;
 use App\Http\Controllers\SettingApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,5 @@ Route::delete('/api/environmental-events.php', [EnvironmentalEventApiController:
 
 Route::get('/api/settings.php', [SettingApiController::class, 'index']);
 Route::post('/api/settings.php', [SettingApiController::class, 'store']);
+
+Route::get('/api/image-cache.php', [ImageCacheController::class, 'show']);

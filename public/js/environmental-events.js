@@ -90,6 +90,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       .replaceAll('"', "&quot;");
   }
 
+  function getCachedImageUrl(url) {
+    return `api/image-cache.php?url=${encodeURIComponent(url)}`;
+  }
+
   function getFactionFlags(ev) {
     const rawFlags = ev.factionFlags || ev.faction_flags || "";
     return String(rawFlags)
@@ -406,7 +410,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const bannerBlock = bannerUrl
           ? `
           <div class="event-card__banner">
-            <img src="${sanitizeText(bannerUrl)}" alt="Event banner" loading="lazy" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="this.parentElement.style.display='none';" />
+            <img src="${sanitizeText(getCachedImageUrl(bannerUrl))}" alt="Event banner" loading="lazy" decoding="async" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="this.parentElement.style.display='none';" />
           </div>
         `
           : "";

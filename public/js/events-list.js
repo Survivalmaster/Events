@@ -70,6 +70,10 @@
       .replaceAll('"', "&quot;");
   }
 
+  function getCachedImageUrl(url) {
+    return `api/image-cache.php?url=${encodeURIComponent(url)}`;
+  }
+
   function getBannerValues(ev) {
     const bannerUrl = (ev.bannerUrl || ev.banner_url || "").trim();
     let bannerPosX = Number(ev.bannerPosX ?? ev.banner_pos_x ?? 50);
@@ -303,7 +307,7 @@
         const bannerBlock = bannerUrl
           ? `
           <div class="event-card__banner">
-            <img src="${sanitizeText(bannerUrl)}" alt="Event banner" loading="lazy" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="this.parentElement.style.display='none';" />
+            <img src="${sanitizeText(getCachedImageUrl(bannerUrl))}" alt="Event banner" loading="lazy" decoding="async" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="this.parentElement.style.display='none';" />
           </div>
         `
           : "";

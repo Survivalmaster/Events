@@ -88,6 +88,41 @@ document.addEventListener("DOMContentLoaded", async () => {
       .replaceAll('"', "&quot;");
   }
 
+  function getFactionFlags(ev) {
+    const rawFlags = ev.factionFlags || ev.faction_flags || "";
+    return String(rawFlags)
+      .split(",")
+      .map((flag) => flag.trim())
+      .filter(Boolean);
+  }
+
+  function getFactionFlagClass(flag) {
+    const normalized = String(flag || "").toUpperCase();
+
+    if (normalized.includes("FIRE") || normalized.includes("SANFIRE")) return "faction-flag--fire";
+    if (normalized.includes("LEO") || normalized.includes("POLICE") || normalized.includes("SHERIFF")) return "faction-flag--leo";
+    if (normalized.includes("GOV")) return "faction-flag--gov";
+    if (normalized.includes("EMS") || normalized.includes("MED") || normalized.includes("HOSPITAL")) return "faction-flag--medical";
+    if (normalized.includes("DOT") || normalized.includes("WORKS")) return "faction-flag--works";
+
+    return "faction-flag--default";
+  }
+
+  function renderFactionFlags(ev) {
+    const flags = getFactionFlags(ev);
+
+    if (!flags.length) {
+      return '<span class="faction-flag faction-flag--empty">None</span>';
+    }
+
+    return flags
+      .map((flag) => {
+        const flagClass = getFactionFlagClass(flag);
+        return `<span class="faction-flag ${flagClass}">${sanitizeText(flag)}</span>`;
+      })
+      .join("");
+  }
+
   function getBannerValues(ev) {
     const bannerUrl = (ev.bannerUrl || ev.banner_url || "").trim();
     let bannerPosX = Number(ev.bannerPosX ?? ev.banner_pos_x ?? 50);
@@ -323,7 +358,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           ${bannerBlock}
           <div class="event-card__title">${ev.name || "Untitled event"}</div>
           <div class="event-card__desc">${ev.label || ev.description || ""}</div>
-          <div class="event-card__handler">Faction Flags: ${ev.factionFlags || ev.faction_flags || "-"}</div>
+          <div class="event-card__flags" aria-label="Faction flags">
+            <span class="event-card__flags-label">Faction Flags</span>
+            <div class="event-card__flags-list">${renderFactionFlags(ev)}</div>
+          </div>
           <div class="event-card__footer">
             <div class="event-card__icons-right">
               <button class="event-icon-btn" data-action="edit" title="Edit event">Edit</button>

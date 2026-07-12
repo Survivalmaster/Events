@@ -1,0 +1,284 @@
+/* Grid of cards inside the main placeholder card */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* Individual event card (light theme) */
+.event-card {
+  background: #ffffff;
+  border: 1px solid #e1e5ee;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 150px;
+  font-size: 13px;
+}
+
+.event-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.event-card__header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.event-banner-manage {
+  border: 1px solid #d6dbe8;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  height: 22px;
+  min-width: 28px;
+  padding: 0 7px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.event-banner-manage:hover {
+  background: #eef2ff;
+  border-color: #c4ccdf;
+  color: #1e293b;
+}
+
+.event-card__banner {
+  margin-top: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  height: 92px;
+}
+
+.event-card__banner img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform-origin: center center;
+}
+
+.event-card__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.event-card__date {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d4ed8;
+}
+
+.event-card__handler {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.event-card__desc {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Footer layout in the card */
+.event-card__footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.event-card__icons-left,
+.event-card__icons-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.event-card__icons-right {
+  margin-left: 0;
+}
+
+/* Simple, clean icon buttons – NO circles, NO borders */
+.event-icon-btn {
+  border: 1px solid #d6dbe8;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 5px 10px;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.event-icon-btn:hover {
+  background: #eef2ff;
+  border-color: #c4ccdf;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+/* Discord SVG sizing */
+.discord-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Proper badge-style status pill */
+.event-status-pill {
+  border: none;
+  outline: none;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+  cursor: default;
+}
+
+/* Variants (same naming as before) */
+.event-status-pill.status-live {
+  background: #16a34a;
+}
+
+.event-status-pill.status-setup {
+  background: #fbbf24;
+  color: #1f2937;
+}
+
+.event-status-pill.status-concluded {
+  background: #b91c1c;
+}
+
+.events-empty {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.banner-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.banner-modal.hidden {
+  display: none;
+}
+
+.banner-modal__panel {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border: 1px solid #d9e1ee;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.2);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.banner-modal__panel h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.banner-modal__panel label {
+  font-size: 12px;
+  color: #475569;
+}
+
+.banner-modal__panel input[type="text"] {
+  width: 100%;
+  border: 1px solid #d6dbe8;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.banner-modal__preview {
+  position: relative;
+  height: 120px;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.banner-modal__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform-origin: center center;
+}
+
+.banner-modal__empty {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #64748b;
+  background: rgba(248, 250, 252, 0.94);
+  text-align: center;
+  padding: 8px;
+}
+
+.banner-modal__sliders {
+  display: grid;
+  gap: 6px;
+}
+
+.banner-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.event-icon-btn--primary {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+}
+
+.event-icon-btn--primary:hover {
+  background: #0d655f;
+  color: #ffffff;
+  border-color: #0d655f;
+}

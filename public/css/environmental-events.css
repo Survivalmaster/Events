@@ -1,0 +1,133 @@
+.environmental-form-card {
+  margin-bottom: 14px;
+}
+
+.env-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 16px;
+}
+
+.env-form-grid label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.env-form-grid input,
+.env-form-grid select,
+.env-form-grid textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 7px 9px;
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+}
+
+.env-form-grid textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.env-form-grid input:focus,
+.env-form-grid select:focus,
+.env-form-grid textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb30;
+}
+
+.env-span-full {
+  grid-column: 1 / -1;
+}
+
+.env-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.env-btn {
+  border: 1px solid #d6dbe8;
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.env-btn-light {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.env-btn-light:hover {
+  background: #edf2f7;
+}
+
+.env-btn-primary {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #fff;
+}
+
+.env-btn-primary:hover {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+.event-status-pill.status-weight-3 {
+  background: #dc2626;
+}
+
+.event-status-pill.status-weight-5 {
+  background: #f97316;
+}
+
+.event-status-pill.status-weight-7 {
+  background: #22c55e;
+  color: #052e16;
+}
+
+.event-status-pill.status-weight-10 {
+  background: #16a34a;
+}
+
+.env-quick-actions {
+  margin-bottom: 10px;
+}
+
+.env-commands-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  display: grid;
+  gap: 8px;
+}
+
+.env-commands-panel.hidden {
+  display: none;
+}
+
+.env-commands-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.env-command-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.env-command-row code {
+  font-size: 12px;
+  color: #334155;
+}

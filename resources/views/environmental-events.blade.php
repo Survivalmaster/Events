@@ -128,6 +128,7 @@
             <button class="event-icon-btn" type="button" data-copy-command="/eventtemplate tp &lt;id&gt;">Copy</button>
           </div>
         </div>
+        <div class="env-filter-bar" id="env-faction-filter" aria-label="Filter by faction"></div>
         <div id="events-container" class="events-grid"></div>
         <p id="events-empty" class="events-empty">
           There are no active environmental events yet.

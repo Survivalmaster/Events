@@ -5,9 +5,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const emptyEl = document.getElementById("events-empty");
   const commandsToggleBtn = document.getElementById("env-commands-toggle");
   const commandsPanel = document.getElementById("env-commands-panel");
+  const factionFilterEl = document.getElementById("env-faction-filter");
   if (!container || !emptyEl) return;
 
   let events = [];
+  let activeFactionFilter = "all";
   let bannerModal = null;
 
   function copyText(text) {
@@ -96,6 +98,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       .filter(Boolean);
   }
 
+  function getNormalizedFactionFlag(flag) {
+    return String(flag || "").trim().toUpperCase();
+  }
+
+  function getAllFactionFlags() {
+    const flags = new Map();
+
+    events.forEach((ev) => {
+      getFactionFlags(ev).forEach((flag) => {
+        const key = getNormalizedFactionFlag(flag);
+        if (key && !flags.has(key)) flags.set(key, flag);
+      });
+    });
+
+    return [...flags.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }
+
+  function eventMatchesFactionFilter(ev) {
+    if (activeFactionFilter === "all") return true;
+
+    return getFactionFlags(ev).some((flag) => getNormalizedFactionFlag(flag) === activeFactionFilter);
+  }
+
   function getFactionFlagClass(flag) {
     const normalized = String(flag || "").toUpperCase();
 
@@ -121,6 +146,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         return `<span class="faction-flag ${flagClass}">${sanitizeText(flag)}</span>`;
       })
       .join("");
+  }
+
+  function renderFactionFilters() {
+    if (!factionFilterEl) return;
+
+    const flags = getAllFactionFlags();
+    const selectedStillExists =
+      activeFactionFilter === "all" || flags.some(([key]) => key === activeFactionFilter);
+
+    if (!selectedStillExists) activeFactionFilter = "all";
+
+    const allCount = events.length;
+    const buttons = [
+      `<button type="button" class="env-filter-chip ${activeFactionFilter === "all" ? "is-active" : ""}" data-faction-filter="all">All <span>${allCount}</span></button>`,
+      ...flags.map(([key, label]) => {
+        const count = events.filter((ev) =>
+          getFactionFlags(ev).some((flag) => getNormalizedFactionFlag(flag) === key),
+        ).length;
+        const activeClass = activeFactionFilter === key ? "is-active" : "";
+        const flagClass = getFactionFlagClass(label).replace("faction-flag--", "env-filter-chip--");
+
+        return `<button type="button" class="env-filter-chip ${flagClass} ${activeClass}" data-faction-filter="${sanitizeText(key)}">${sanitizeText(label)} <span>${count}</span></button>`;
+      }),
+    ];
+
+    factionFilterEl.innerHTML = buttons.join("");
+
+    factionFilterEl.querySelectorAll("[data-faction-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFactionFilter = button.getAttribute("data-faction-filter") || "all";
+        render();
+      });
+    });
   }
 
   function getBannerValues(ev) {
@@ -156,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getActiveEvents() {
-    return events;
+    return events.filter(eventMatchesFactionFilter);
   }
 
   function ensureBannerModal() {
@@ -321,10 +379,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function render() {
     container.innerHTML = "";
+    renderFactionFilters();
+
     const activeEvents = getActiveEvents();
 
     if (!activeEvents.length) {
       emptyEl.style.display = "block";
+      emptyEl.textContent =
+        activeFactionFilter === "all"
+          ? "There are no active environmental events yet."
+          : "No environmental events match that faction filter.";
       return;
     }
 
@@ -348,16 +412,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           : "";
 
         card.innerHTML = `
-          <div class="event-card__header">
-            <div class="event-card__header-left">
-              <span class="event-status-pill ${badge.className}">${badge.label}</span>
-              <button class="event-banner-manage" data-action="banner" title="Manage banner" aria-label="Manage banner">IMG</button>
+          <div class="event-card__main">
+            <div class="event-card__header">
+              <div class="event-card__header-left">
+                <span class="event-status-pill ${badge.className}">${badge.label}</span>
+                <button class="event-banner-manage" data-action="banner" title="Manage banner" aria-label="Manage banner">IMG</button>
+              </div>
+              <span>Event ID: ${ev.eventId || ev.event_id || "-"}</span>
             </div>
-            <span>Event ID: ${ev.eventId || ev.event_id || "-"}</span>
+            ${bannerBlock}
+            <div class="event-card__title">${ev.name || "Untitled event"}</div>
+            <div class="event-card__desc">${ev.label || ev.description || ""}</div>
           </div>
-          ${bannerBlock}
-          <div class="event-card__title">${ev.name || "Untitled event"}</div>
-          <div class="event-card__desc">${ev.label || ev.description || ""}</div>
           <div class="event-card__flags" aria-label="Faction flags">
             <span class="event-card__flags-label">Faction Flags</span>
             <div class="event-card__flags-list">${renderFactionFlags(ev)}</div>
@@ -365,7 +431,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="event-card__footer">
             <div class="event-card__icons-right">
               <button class="event-icon-btn" data-action="edit" title="Edit event">Edit</button>
-              <button class="event-icon-btn" data-action="delete" title="Delete event">Delete</button>
+              <button class="event-icon-btn event-icon-btn--danger" data-action="delete" title="Delete event">Delete</button>
             </div>
           </div>
         `;

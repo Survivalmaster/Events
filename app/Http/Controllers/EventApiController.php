@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Support\EventPortalSchema;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -10,6 +11,8 @@ class EventApiController extends Controller
 {
     public function index(): JsonResponse
     {
+        EventPortalSchema::ensure();
+
         $events = Event::query()
             ->orderByDesc('created_at')
             ->orderByDesc('id')
@@ -21,6 +24,8 @@ class EventApiController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        EventPortalSchema::ensure();
+
         $payload = $request->all();
 
         $id = isset($payload['id']) ? (int) $payload['id'] : null;
@@ -74,6 +79,8 @@ class EventApiController extends Controller
 
     public function destroy(Request $request): JsonResponse
     {
+        EventPortalSchema::ensure();
+
         $id = (int) $request->query('id');
         if ($id <= 0) {
             return response()->json(['error' => 'Valid id is required'], 422);

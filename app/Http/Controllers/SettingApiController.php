@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AppSetting;
+use App\Support\EventPortalSchema;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -10,6 +11,8 @@ class SettingApiController extends Controller
 {
     public function index(): JsonResponse
     {
+        EventPortalSchema::ensure();
+
         $settings = [
             'username' => '',
             'handler' => '',
@@ -27,6 +30,8 @@ class SettingApiController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        EventPortalSchema::ensure();
+
         $key = trim((string) $request->input('key', ''));
         $value = trim((string) $request->input('value', ''));
 

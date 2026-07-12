@@ -6,6 +6,7 @@ use App\Models\EnvironmentalEvent;
 use App\Support\EventPortalSchema;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class EnvironmentalEventApiController extends Controller
 {
@@ -13,10 +14,15 @@ class EnvironmentalEventApiController extends Controller
     {
         EventPortalSchema::ensure();
 
-        $events = EnvironmentalEvent::query()
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->get()
+        $query = EnvironmentalEvent::query();
+
+        if (Schema::hasColumn('environmental_events', 'created_at')) {
+            $query->orderByDesc('created_at');
+        }
+
+        $query->orderByDesc('id');
+
+        $events = $query->get()
             ->map(fn (EnvironmentalEvent $event): array => $this->formatEvent($event));
 
         return response()->json(['events' => $events]);

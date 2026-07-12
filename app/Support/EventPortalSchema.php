@@ -50,6 +50,8 @@ class EventPortalSchema
             return;
         }
 
+        self::addColumnIfMissing('events', 'created_at', fn (Blueprint $table) => $table->timestamp('created_at')->nullable());
+        self::addColumnIfMissing('events', 'updated_at', fn (Blueprint $table) => $table->timestamp('updated_at')->nullable());
         self::addColumnIfMissing('events', 'banner_url', fn (Blueprint $table) => $table->string('banner_url', 1000)->default(''));
         self::addColumnIfMissing('events', 'banner_pos_x', fn (Blueprint $table) => $table->unsignedTinyInteger('banner_pos_x')->default(50));
         self::addColumnIfMissing('events', 'banner_pos_y', fn (Blueprint $table) => $table->unsignedTinyInteger('banner_pos_y')->default(50));
@@ -80,6 +82,8 @@ class EventPortalSchema
             return;
         }
 
+        self::addColumnIfMissing('environmental_events', 'created_at', fn (Blueprint $table) => $table->timestamp('created_at')->nullable());
+        self::addColumnIfMissing('environmental_events', 'updated_at', fn (Blueprint $table) => $table->timestamp('updated_at')->nullable());
         self::addColumnIfMissing('environmental_events', 'event_id', fn (Blueprint $table) => $table->string('event_id', 50)->default(''));
         self::addColumnIfMissing('environmental_events', 'faction_flags', fn (Blueprint $table) => $table->string('faction_flags')->default(''));
         self::addColumnIfMissing('environmental_events', 'weight', fn (Blueprint $table) => $table->unsignedTinyInteger('weight')->default(5));

@@ -28,3 +28,4 @@ Route::get('/api/settings.php', [SettingApiController::class, 'index']);
 Route::post('/api/settings.php', [SettingApiController::class, 'store']);
 
 Route::get('/api/image-cache.php', [ImageCacheController::class, 'show']);
+Route::match(['get', 'post'], '/api/image-cache-warm.php', [ImageCacheController::class, 'warm']);

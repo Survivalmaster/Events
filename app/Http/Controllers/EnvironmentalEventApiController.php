@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EnvironmentalEvent;
 use App\Support\EventPortalSchema;
+use App\Support\ImageCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -107,6 +108,8 @@ class EnvironmentalEventApiController extends Controller
             'district' => $event->district,
             'bannerUrl' => $event->banner_url,
             'banner_url' => $event->banner_url,
+            'bannerCachedUrl' => ImageCache::publicUrlIfCached((string) $event->banner_url),
+            'banner_cached_url' => ImageCache::publicUrlIfCached((string) $event->banner_url),
             'bannerPosX' => $event->banner_pos_x,
             'banner_pos_x' => $event->banner_pos_x,
             'bannerPosY' => $event->banner_pos_y,

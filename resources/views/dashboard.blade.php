@@ -51,17 +51,9 @@
 
       <div class="sidebar__section">
         <div class="sidebar__section-title">Sections</div>
-        <a href="events-wizard.html" class="sidebar__item">
-          <i class="fa-solid fa-calendar-plus"></i>
-          <span>Create Events</span>
-        </a>
         <a href="environmental-events-wizard.html" class="sidebar__item">
           <i class="fa-solid fa-cloud-showers-water"></i>
           <span>Create Environmental Event</span>
-        </a>
-        <a href="events.html" class="sidebar__item">
-          <i class="fa-solid fa-coins"></i>
-          <span>Active Events</span>
         </a>
         <a href="environmental-events.html" class="sidebar__item">
           <i class="fa-solid fa-cloud-sun-rain"></i>

@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const API_EVENTS = "api/environmental-events.php";
+  const API_IMAGE_WARM = "api/image-cache-warm.php";
 
   const container = document.getElementById("events-container");
   const emptyEl = document.getElementById("events-empty");
@@ -96,6 +97,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return `api/image-cache.php?url=${encodeURIComponent(url)}`;
   }
 
+  function getBannerImageUrl(ev) {
+    return ev.bannerCachedUrl || ev.banner_cached_url || getCachedImageUrl(getBannerUrl(ev));
+  }
+
   function getBannerUrl(ev) {
     return (ev.bannerUrl || ev.banner_url || "").trim();
   }
@@ -128,6 +133,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     for (let i = 0; i < workerCount; i += 1) {
       warmNext();
+    }
+  }
+
+  async function warmAllServerImages() {
+    try {
+      const response = await fetch(API_IMAGE_WARM, { method: "POST" });
+      if (!response.ok) return;
+
+      const data = await response.json().catch(() => ({}));
+      if ((Number(data.cached) || 0) > 0) {
+        await loadEvents();
+        render();
+      }
+    } catch {
+      // Cache warming is opportunistic; visible cards still load normally.
     }
   }
 
@@ -447,7 +467,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const bannerBlock = bannerUrl
           ? `
           <div class="event-card__banner">
-            <img src="${sanitizeText(getCachedImageUrl(bannerUrl))}" data-source-url="${sanitizeText(bannerUrl)}" alt="Event banner" loading="lazy" decoding="async" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="if (!this.dataset.sourceTried) { this.dataset.sourceTried = '1'; this.src = this.dataset.sourceUrl; } else { this.parentElement.style.display = 'none'; }" />
+            <img src="${sanitizeText(getBannerImageUrl(ev))}" data-source-url="${sanitizeText(bannerUrl)}" alt="Event banner" loading="eager" decoding="async" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="if (!this.dataset.sourceTried) { this.dataset.sourceTried = '1'; this.src = this.dataset.sourceUrl; } else { this.parentElement.style.display = 'none'; }" />
           </div>
         `
           : "";
@@ -508,6 +528,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     await loadEvents();
     render();
+    warmAllServerImages();
   } catch (error) {
     emptyEl.style.display = "block";
     emptyEl.textContent = `Could not load environmental events: ${error.message}`;

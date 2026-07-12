@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Support\EventPortalSchema;
+use App\Support\ImageCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -109,6 +110,8 @@ class EventApiController extends Controller
             'discord' => $event->discord,
             'bannerUrl' => $event->banner_url,
             'banner_url' => $event->banner_url,
+            'bannerCachedUrl' => ImageCache::publicUrlIfCached((string) $event->banner_url),
+            'banner_cached_url' => ImageCache::publicUrlIfCached((string) $event->banner_url),
             'bannerPosX' => $event->banner_pos_x,
             'banner_pos_x' => $event->banner_pos_x,
             'bannerPosY' => $event->banner_pos_y,

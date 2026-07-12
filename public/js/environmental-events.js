@@ -447,7 +447,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const bannerBlock = bannerUrl
           ? `
           <div class="event-card__banner">
-            <img src="${sanitizeText(getCachedImageUrl(bannerUrl))}" alt="Event banner" loading="lazy" decoding="async" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="this.parentElement.style.display='none';" />
+            <img src="${sanitizeText(getCachedImageUrl(bannerUrl))}" data-source-url="${sanitizeText(bannerUrl)}" alt="Event banner" loading="lazy" decoding="async" style="object-position: ${bannerPosX}% ${bannerPosY}%; transform: scale(${bannerZoom});" onerror="if (!this.dataset.sourceTried) { this.dataset.sourceTried = '1'; this.src = this.dataset.sourceUrl; } else { this.parentElement.style.display = 'none'; }" />
           </div>
         `
           : "";

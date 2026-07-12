@@ -91,6 +91,13 @@ class ImageCacheController extends Controller
 
     private function downloadImage(string $url): ?array
     {
+        if (function_exists('curl_init')) {
+            $download = $this->downloadImageWithCurl($url);
+            if ($download) {
+                return $download;
+            }
+        }
+
         $context = stream_context_create([
             'http' => [
                 'follow_location' => 1,
@@ -107,6 +114,57 @@ class ImageCacheController extends Controller
         }
 
         $mimeType = $this->detectMimeType($contents);
+        if (! str_starts_with($mimeType, 'image/')) {
+            return null;
+        }
+
+        return [
+            'contents' => $contents,
+            'mime_type' => $mimeType,
+        ];
+    }
+
+    private function downloadImageWithCurl(string $url): ?array
+    {
+        $handle = curl_init($url);
+        if ($handle === false) {
+            return null;
+        }
+
+        $contents = '';
+
+        curl_setopt_array($handle, [
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 3,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_USERAGENT => 'EventsPortalImageCache/1.0',
+            CURLOPT_WRITEFUNCTION => function ($handle, string $chunk) use (&$contents): int {
+                $contents = ($contents ?? '').$chunk;
+
+                if (strlen($contents) > self::MAX_BYTES) {
+                    return 0;
+                }
+
+                return strlen($chunk);
+            },
+        ]);
+
+        curl_exec($handle);
+        $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+        $contentType = (string) curl_getinfo($handle, CURLINFO_CONTENT_TYPE);
+        $errorNumber = curl_errno($handle);
+        curl_close($handle);
+
+        if ($errorNumber !== 0 || $statusCode < 200 || $statusCode >= 300 || $contents === '') {
+            return null;
+        }
+
+        $mimeType = trim(explode(';', $contentType)[0]) ?: $this->detectMimeType($contents);
+        if (! str_starts_with($mimeType, 'image/')) {
+            $mimeType = $this->detectMimeType($contents);
+        }
+
         if (! str_starts_with($mimeType, 'image/')) {
             return null;
         }

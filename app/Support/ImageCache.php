@@ -131,7 +131,7 @@ class ImageCache
                 'follow_location' => 1,
                 'ignore_errors' => true,
                 'max_redirects' => 3,
-                'timeout' => 8,
+                'timeout' => 3,
                 'user_agent' => 'EventsPortalImageCache/1.0',
             ],
         ]);
@@ -165,7 +165,8 @@ class ImageCache
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS => 3,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_TIMEOUT => 4,
             CURLOPT_USERAGENT => 'EventsPortalImageCache/1.0',
             CURLOPT_WRITEFUNCTION => function ($handle, string $chunk) use (&$contents): int {
                 $contents .= $chunk;

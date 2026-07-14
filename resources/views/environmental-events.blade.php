@@ -20,6 +20,11 @@
   <link rel="stylesheet" href="css/environmental-events.css" />
 </head>
 <body>
+@php
+  $authUser = session('discord_user', []);
+  $displayName = $authUser['display_name'] ?? $authUser['username'] ?? 'Events Team';
+  $avatarUrl = $authUser['avatar'] ?? null;
+@endphp
 <div class="app">
   <aside class="sidebar">
     <div class="sidebar__logo">
@@ -72,12 +77,22 @@
           <span class="icon-badge">0</span>
         </button>
         <div class="topbar__user">
-          <div class="topbar__avatar">S</div>
+          <div class="topbar__avatar">
+            @if ($avatarUrl)
+              <img src="{{ $avatarUrl }}" alt="{{ $displayName }}">
+            @else
+              {{ mb_substr($displayName, 0, 1) }}
+            @endif
+          </div>
           <div class="topbar__user-info">
-            <div class="topbar__user-name">Unknown</div>
+            <div class="topbar__user-name">{{ $displayName }}</div>
             <div class="topbar__user-role">Events Team</div>
           </div>
         </div>
+        <form method="POST" action="{{ route('discord.logout') }}">
+          @csrf
+          <button class="topbar__logout" type="submit">Logout</button>
+        </form>
       </div>
     </header>
 

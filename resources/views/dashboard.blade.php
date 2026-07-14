@@ -22,6 +22,18 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+@php
+  $authUser = session('discord_user', []);
+  $displayName = $authUser['display_name'] ?? $authUser['username'] ?? 'Events Team';
+  $avatarUrl = $authUser['avatar'] ?? null;
+  $envStats = $envStats ?? [
+    'total' => 0,
+    'veryRare' => 0,
+    'rare' => 0,
+    'common' => 0,
+    'overview' => 'No environmental event stats are available yet.',
+  ];
+@endphp
 <div class="app">
 
 
@@ -82,12 +94,22 @@
           <span class="icon-badge">0</span>
         </button>
         <div class="topbar__user">
-          <div class="topbar__avatar">S</div>
+          <div class="topbar__avatar">
+            @if ($avatarUrl)
+              <img src="{{ $avatarUrl }}" alt="{{ $displayName }}">
+            @else
+              {{ mb_substr($displayName, 0, 1) }}
+            @endif
+          </div>
           <div class="topbar__user-info">
-            <div class="topbar__user-name">Unknown</div>
+            <div class="topbar__user-name">{{ $displayName }}</div>
             <div class="topbar__user-role">Events Team</div>
           </div>
         </div>
+        <form method="POST" action="{{ route('discord.logout') }}">
+          @csrf
+          <button class="topbar__logout" type="submit">Logout</button>
+        </form>
       </div>
     </header>
 
@@ -97,7 +119,7 @@
           <div class="stats-card__title">Environmental Templates</div>
         </div>
         <div class="stats-card__body">
-          <div class="stats-card__value" id="env-stat-total">--</div>
+          <div class="stats-card__value" id="env-stat-total">{{ $envStats['total'] }}</div>
           <button class="stats-card__action">
             <i class="fa-solid fa-cloud-sun-rain"></i>
           </button>
@@ -110,7 +132,7 @@
           <div class="stats-card__title">Very Rare (Weight 1-3)</div>
         </div>
         <div class="stats-card__body">
-          <div class="stats-card__value" id="env-stat-rare">--</div>
+          <div class="stats-card__value" id="env-stat-rare">{{ $envStats['veryRare'] }}</div>
           <button class="stats-card__action stats-card__action--alert">
             <i class="fa-solid fa-triangle-exclamation"></i>
           </button>
@@ -123,7 +145,7 @@
           <div class="stats-card__title">Rare (Weight 4-7)</div>
         </div>
         <div class="stats-card__body">
-          <div class="stats-card__value" id="env-stat-medium">--</div>
+          <div class="stats-card__value" id="env-stat-medium">{{ $envStats['rare'] }}</div>
           <button class="stats-card__action stats-card__action--primary">
             <i class="fa-solid fa-seedling"></i>
           </button>
@@ -136,7 +158,7 @@
           <div class="stats-card__title">Common (Weight 8-10)</div>
         </div>
         <div class="stats-card__body">
-          <div class="stats-card__value" id="env-stat-common">--</div>
+          <div class="stats-card__value" id="env-stat-common">{{ $envStats['common'] }}</div>
           <button class="stats-card__action">
             <i class="fa-solid fa-cloud-sun"></i>
           </button>
@@ -151,7 +173,7 @@
         <h2>Environmental Events Overview</h2>
       </div>
       <div class="card__body">
-        <p id="env-overview-text">Loading environmental event stats...</p>
+        <p id="env-overview-text">{{ $envStats['overview'] }}</p>
       </div>
     </section>
 
@@ -163,7 +185,6 @@
 </div>
 
 <script src="js/script.js"></script>
-<script src="js/dashboard.js"></script>
 
 <!-- Username Popup Modal -->
 <div id="usernameModal" class="username-modal hidden">

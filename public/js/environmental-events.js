@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const API_EVENTS = "api/environmental-events.php";
-  const API_IMAGE_WARM = "api/image-cache-warm.php";
 
   const container = document.getElementById("events-container");
   const emptyEl = document.getElementById("events-empty");
@@ -10,8 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!container || !emptyEl) return;
 
   let events = [];
-  let activeFactionFilter = "all";
-  const warmedImageUrls = new Set();
+  let activeFactionFilters = new Set();
   let bannerModal = null;
 
   function copyText(text) {
@@ -70,7 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function loadEvents() {
     const data = await apiRequest(API_EVENTS);
     events = Array.isArray(data.events) ? data.events : [];
-    warmExistingImages(events);
   }
 
   async function saveEvent(payload) {
@@ -98,57 +95,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getBannerImageUrl(ev) {
-    return ev.bannerCachedUrl || ev.banner_cached_url || getCachedImageUrl(getBannerUrl(ev));
+    return ev.bannerCachedUrl || ev.banner_cached_url || getBannerUrl(ev);
   }
 
   function getBannerUrl(ev) {
     return (ev.bannerUrl || ev.banner_url || "").trim();
-  }
-
-  function warmExistingImages(sourceEvents) {
-    const urls = [...new Set(sourceEvents.map(getBannerUrl).filter(Boolean))]
-      .filter((url) => !warmedImageUrls.has(url));
-
-    if (!urls.length) return;
-
-    urls.forEach((url) => warmedImageUrls.add(url));
-
-    let nextIndex = 0;
-    const workerCount = Math.min(4, urls.length);
-
-    const warmNext = async () => {
-      const url = urls[nextIndex];
-      nextIndex += 1;
-
-      if (!url) return;
-
-      try {
-        await fetch(getCachedImageUrl(url), { cache: "force-cache" });
-      } catch {
-        // The card image itself will still try to load when visible.
-      }
-
-      await warmNext();
-    };
-
-    for (let i = 0; i < workerCount; i += 1) {
-      warmNext();
-    }
-  }
-
-  async function warmAllServerImages() {
-    try {
-      const response = await fetch(API_IMAGE_WARM, { method: "POST" });
-      if (!response.ok) return;
-
-      const data = await response.json().catch(() => ({}));
-      if ((Number(data.cached) || 0) > 0) {
-        await loadEvents();
-        render();
-      }
-    } catch {
-      // Cache warming is opportunistic; visible cards still load normally.
-    }
   }
 
   function getFactionFlags(ev) {
@@ -177,9 +128,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function eventMatchesFactionFilter(ev) {
-    if (activeFactionFilter === "all") return true;
+    if (activeFactionFilters.size === 0) return true;
 
-    return getFactionFlags(ev).some((flag) => getNormalizedFactionFlag(flag) === activeFactionFilter);
+    return getFactionFlags(ev).some((flag) => activeFactionFilters.has(getNormalizedFactionFlag(flag)));
   }
 
   function getFactionFlagClass(flag) {
@@ -213,30 +164,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!factionFilterEl) return;
 
     const flags = getAllFactionFlags();
-    const selectedStillExists =
-      activeFactionFilter === "all" || flags.some(([key]) => key === activeFactionFilter);
-
-    if (!selectedStillExists) activeFactionFilter = "all";
+    const availableKeys = new Set(flags.map(([key]) => key));
+    activeFactionFilters = new Set([...activeFactionFilters].filter((key) => availableKeys.has(key)));
 
     const allCount = events.length;
+    const activeLabel =
+      activeFactionFilters.size === 0
+        ? "All factions"
+        : `${activeFactionFilters.size} faction${activeFactionFilters.size === 1 ? "" : "s"} selected`;
     const buttons = [
-      `<button type="button" class="env-filter-chip ${activeFactionFilter === "all" ? "is-active" : ""}" data-faction-filter="all">All <span>${allCount}</span></button>`,
+      `<button type="button" class="env-filter-chip env-filter-chip--all ${activeFactionFilters.size === 0 ? "is-active" : ""}" data-faction-filter="all">All <span>${allCount}</span></button>`,
       ...flags.map(([key, label]) => {
         const count = events.filter((ev) =>
           getFactionFlags(ev).some((flag) => getNormalizedFactionFlag(flag) === key),
         ).length;
-        const activeClass = activeFactionFilter === key ? "is-active" : "";
+        const activeClass = activeFactionFilters.has(key) ? "is-active" : "";
         const flagClass = getFactionFlagClass(label).replace("faction-flag--", "env-filter-chip--");
 
-        return `<button type="button" class="env-filter-chip ${flagClass} ${activeClass}" data-faction-filter="${sanitizeText(key)}">${sanitizeText(label)} <span>${count}</span></button>`;
+        return `<button type="button" class="env-filter-chip ${flagClass} ${activeClass}" data-faction-filter="${sanitizeText(key)}" aria-pressed="${activeFactionFilters.has(key) ? "true" : "false"}">${sanitizeText(label)} <span>${count}</span></button>`;
       }),
     ];
 
-    factionFilterEl.innerHTML = buttons.join("");
+    factionFilterEl.innerHTML = `
+      <div class="env-filter-bar__header">
+        <div>
+          <span class="env-filter-bar__eyebrow">Faction Filter</span>
+          <strong>${activeLabel}</strong>
+        </div>
+        <button type="button" class="env-filter-clear" data-faction-filter-clear ${activeFactionFilters.size === 0 ? "disabled" : ""}>Clear</button>
+      </div>
+      <div class="env-filter-bar__chips">${buttons.join("")}</div>
+    `;
+
+    const clearBtn = factionFilterEl.querySelector("[data-faction-filter-clear]");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        activeFactionFilters.clear();
+        render();
+      });
+    }
 
     factionFilterEl.querySelectorAll("[data-faction-filter]").forEach((button) => {
       button.addEventListener("click", () => {
-        activeFactionFilter = button.getAttribute("data-faction-filter") || "all";
+        const filter = button.getAttribute("data-faction-filter") || "all";
+        if (filter === "all") {
+          activeFactionFilters.clear();
+        } else if (activeFactionFilters.has(filter)) {
+          activeFactionFilters.delete(filter);
+        } else {
+          activeFactionFilters.add(filter);
+        }
         render();
       });
     });
@@ -447,9 +424,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!activeEvents.length) {
       emptyEl.style.display = "block";
       emptyEl.textContent =
-        activeFactionFilter === "all"
+        activeFactionFilters.size === 0
           ? "There are no active environmental events yet."
-          : "No environmental events match that faction filter.";
+          : "No environmental events match those faction filters.";
       return;
     }
 
@@ -528,7 +505,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     await loadEvents();
     render();
-    warmAllServerImages();
   } catch (error) {
     emptyEl.style.display = "block";
     emptyEl.textContent = `Could not load environmental events: ${error.message}`;

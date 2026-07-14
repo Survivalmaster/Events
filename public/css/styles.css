@@ -277,6 +277,15 @@ body {
   justify-content: center;
   color: #f9fafb;
   font-weight: 600;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.topbar__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .topbar__user-info {
@@ -292,6 +301,25 @@ body {
 .topbar__user-role {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.topbar__logout {
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: #334155;
+  border-radius: 10px;
+  min-height: 32px;
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.topbar__logout:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 /* HERO */

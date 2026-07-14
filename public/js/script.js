@@ -26,6 +26,10 @@
     setInterval(updateClock, 1000);
   }
 
+  if (document.querySelector(".topbar__logout")) {
+    return;
+  }
+
   const usernameModal = document.getElementById("usernameModal");
   const usernameInput = document.getElementById("usernameInput");
   const usernameSaveBtn = document.getElementById("usernameSaveBtn");

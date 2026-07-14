@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'discord' => [
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        'redirect' => env('DISCORD_REDIRECT_URI'),
+        'guild_id' => env('DISCORD_EVENTS_GUILD_ID', '1069067267951841411'),
+        'events_role_id' => env('DISCORD_EVENTS_ROLE_ID', '1093941122423865344'),
+        'ca_bundle' => env('DISCORD_CA_BUNDLE'),
+        'verify_ssl' => env('DISCORD_VERIFY_SSL', true),
+    ],
+
 ];
